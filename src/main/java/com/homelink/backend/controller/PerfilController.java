@@ -2,15 +2,21 @@ package com.homelink.backend.controller;
 
 import com.homelink.backend.model.Categoria;
 import com.homelink.backend.model.PerfilTrabajador;
+import com.homelink.backend.security.CustomUserDetails;
 import com.homelink.backend.service.CategoriaService;
 import com.homelink.backend.service.TrabajadorService;
-import jakarta.servlet.http.HttpSession;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 
+// Antes el usuario autenticado se leia a mano de la HttpSession
+// ("usuarioId"), que dependia de que AuthController la hubiera poblado en el
+// login manual. Ahora Spring Security ya garantiza que solo se llega aqui
+// autenticado (ver SecurityConfig) y nos entrega directamente el Usuario real
+// a traves de CustomUserDetails, sin volver a consultar la base de datos.
 @Controller
 @RequestMapping("/perfil")
 public class PerfilController {
@@ -24,11 +30,8 @@ public class PerfilController {
     }
 
     @GetMapping
-    public String verPerfil(HttpSession session, Model model) {
-        Long usuarioId = (Long) session.getAttribute("usuarioId");
-        if (usuarioId == null) {
-            return "redirect:/login";
-        }
+    public String verPerfil(@AuthenticationPrincipal CustomUserDetails principal, Model model) {
+        Long usuarioId = principal.getUsuario().getId();
         PerfilTrabajador perfil = trabajadorService.buscarPorUsuarioId(usuarioId).orElse(null);
         model.addAttribute("perfil", perfil);
         model.addAttribute("categorias", categoriaService.listarTodas());
@@ -36,16 +39,13 @@ public class PerfilController {
     }
 
     @PostMapping("/actualizar")
-    public String actualizarPerfil(HttpSession session,
+    public String actualizarPerfil(@AuthenticationPrincipal CustomUserDetails principal,
                                     @RequestParam Long categoriaId,
                                     @RequestParam String zonaCobertura,
                                     @RequestParam String descripcion,
                                     @RequestParam BigDecimal tarifaReferencial,
                                     @RequestParam(required = false) String documentoUrl) {
-        Long usuarioId = (Long) session.getAttribute("usuarioId");
-        if (usuarioId == null) {
-            return "redirect:/login";
-        }
+        Long usuarioId = principal.getUsuario().getId();
         PerfilTrabajador perfil = trabajadorService.buscarPorUsuarioId(usuarioId)
                 .orElseThrow(() -> new IllegalArgumentException("Perfil no encontrado"));
         Categoria categoria = categoriaService.buscarPorId(categoriaId)

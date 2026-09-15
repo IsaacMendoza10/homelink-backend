@@ -9,7 +9,7 @@
 <div th:replace="~{fragments/nav :: nav}"></div>
 <main class="container" style="max-width: 480px;">
     <h1 class="h3 mb-3">Ingresar</h1>
-    <p th:if="${error}" class="alert alert-danger" th:text="${error}"></p>
+    <p th:if="${param.error}" class="alert alert-danger">Correo o contrasena incorrectos.</p>
     <form method="post" th:action="@{/login}">
         <div class="mb-3">
             <label class="form-label">Correo electronico</label>

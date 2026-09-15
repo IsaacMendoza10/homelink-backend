@@ -5,10 +5,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-// Nota: solo se usa spring-security-crypto (BCrypt) para no complicar el
-// arranque del proyecto con la configuracion completa de Spring Security.
-// Esto significa que las contrasenas SI quedan hasheadas, pero los endpoints
-// no estan protegidos por un filtro de autenticacion/autorizacion todavia.
+// Este bean lo usa tanto DataSeeder/UsuarioService (para hashear contrasenas)
+// como SecurityConfig.authenticationProvider() (para verificarlas en el login),
+// asi que solo hay una definicion de PasswordEncoder en todo el proyecto.
 @Configuration
 public class PasswordEncoderConfig {
 

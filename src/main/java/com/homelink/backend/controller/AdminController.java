@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-// Panel de administracion sin control de acceso: no hay ningun filtro,
-// interceptor ni chequeo de rol "ADMINISTRADOR" antes de entrar aqui.
-// Cualquier usuario (incluso sin iniciar sesion) que navegue a /admin/dashboard
-// puede ver y usar estas acciones.
+// El panel de administracion ya esta protegido: SecurityConfig exige el rol
+// ADMINISTRADOR para todo /admin/**, asi que si se llega hasta aqui es porque
+// Spring Security ya autentico y autorizo al usuario. No hace falta repetir
+// la verificacion a mano en el controlador.
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
