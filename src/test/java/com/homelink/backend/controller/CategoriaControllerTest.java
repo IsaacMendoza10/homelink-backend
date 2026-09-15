@@ -6,6 +6,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.http.MediaType;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -43,10 +44,11 @@ class CategoriaControllerTest {
 
     @Test
     void crearCategoria_sinAutenticarse_noLlegaAlListadoSinoAlLogin() throws Exception {
-        // Antes de proteger este endpoint con Spring Security, cualquiera podia
         // crear categorias con solo conocer la URL POST /categorias/nueva.
+        // Antes de proteger este endpoint con Spring Security, cualquiera podia
         mockMvc.perform(post("/categorias/nueva")
                         .with(csrf())
+                        .accept(MediaType.TEXT_HTML)
                         .param("nombre", "Categoria-no-autorizada-" + System.nanoTime())
                         .param("descripcion", "No deberia poder crearse sin iniciar sesion"))
                 .andExpect(status().is3xxRedirection())
