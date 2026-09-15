@@ -6,10 +6,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-// Este controlador mezcla la lista publica de categorias con la
-// administracion (crear/eliminar) en la misma clase, sin distinguir por
-// rol ni verificar sesion de administrador: cualquiera que conozca la URL
-// POST /categorias/nueva o /categorias/{id}/eliminar puede usarla.
+// El listado (GET) sigue siendo publico a proposito (un cliente debe poder
+// ver las categorias sin haber iniciado sesion), pero crear y eliminar
+// categorias (POST) ahora exige el rol ADMINISTRADOR: la regla vive en
+// SecurityConfig, no en este controlador.
 @Controller
 @RequestMapping("/categorias")
 public class CategoriaController {
