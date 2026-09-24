@@ -38,6 +38,12 @@ public class SolicitudService {
         return solicitudRepository.findByTrabajadorId(trabajadorId);
     }
 
+    // Solicitudes abiertas (sin trabajador asignado todavia) dentro de una categoria,
+    // para que un trabajador aprobado en esa categoria pueda verlas y postularse.
+    public List<Solicitud> listarAbiertasPorCategoria(Long categoriaId) {
+        return solicitudRepository.findByCategoriaIdAndEstado(categoriaId, EstadoSolicitud.PENDIENTE);
+    }
+
     public Optional<Solicitud> buscarPorId(Long id) {
         return solicitudRepository.findById(id);
     }
@@ -69,6 +75,21 @@ public class SolicitudService {
         calificacion.setPuntuacion(puntuacion);
         calificacion.setComentario(comentario);
         return calificacionRepository.save(calificacion);
+    }
+
+    // Solicitudes que llevan mas de 24 horas sin llegar a un estado final: se marcan como
+    // EXPIRADA para que el flujo de trabajo no se quede estancado. Devuelve las que se
+    // acaban de expirar para que el llamador (ver SolicitudScheduler) tambien cancele en
+    // cascada sus postulaciones pendientes.
+    public List<Solicitud> expirarVencidas() {
+        LocalDateTime limite = LocalDateTime.now().minusHours(24);
+        List<EstadoSolicitud> activos = List.of(EstadoSolicitud.PENDIENTE, EstadoSolicitud.ACEPTADA, EstadoSolicitud.EN_PROCESO);
+        List<Solicitud> vencidas = solicitudRepository.findByFechaCreacionBeforeAndEstadoIn(limite, activos);
+        for (Solicitud s : vencidas) {
+            s.setEstado(EstadoSolicitud.EXPIRADA);
+            solicitudRepository.save(s);
+        }
+        return vencidas;
     }
 
     // NOTA: no se maneja aqui una excepcion propia (ej. SolicitudNoEncontradaException),
