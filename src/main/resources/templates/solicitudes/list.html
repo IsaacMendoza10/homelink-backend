@@ -12,6 +12,102 @@
         <h1 class="h3 m-0">Mis solicitudes</h1>
         <a th:if="${rol == 'CLIENTE'}" class="btn btn-primary" href="/solicitudes/nueva">Nueva solicitud</a>
     </div>
+
+    <!-- TRABAJADOR: solicitudes abiertas a las que se puede postular -->
+    <div th:if="${rol == 'TRABAJADOR'}" class="mb-4">
+        <h2 class="h5 mb-2">Solicitudes disponibles en tu categoria</h2>
+        <p th:if="${#lists.isEmpty(solicitudesDisponibles)}" class="text-muted">
+            Por ahora no hay solicitudes abiertas en tu categoria.
+        </p>
+        <table th:if="${!#lists.isEmpty(solicitudesDisponibles)}" class="table">
+            <thead>
+            <tr>
+                <th>Descripcion</th>
+                <th>Direccion</th>
+                <th>Postulantes</th>
+                <th>Tiempo restante</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="v : ${solicitudesDisponibles}">
+                <td th:text="${v.solicitud.descripcion}"></td>
+                <td th:text="${v.solicitud.direccion}"></td>
+                <td>
+                    <span class="badge" th:classappend="${v.cupoLleno} ? 'bg-secondary' : 'bg-info text-dark'"
+                          th:text="${v.postulantesActuales} + '/' + ${v.postulantesMaximo}"></span>
+                </td>
+                <td th:text="${v.tiempoRestanteTexto}"></td>
+                <td>
+                    <form th:if="${!v.yaPostulado and !v.cupoLleno}" method="post"
+                          th:action="@{/solicitudes/{id}/postularse(id=${v.solicitud.id})}" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-outline-primary">Postularme</button>
+                    </form>
+                    <span th:if="${v.yaPostulado}" class="text-muted small">Ya te postulaste</span>
+                    <span th:if="${!v.yaPostulado and v.cupoLleno}" class="text-muted small">Cupo lleno</span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- TRABAJADOR: postulaciones que envio y siguen esperando respuesta -->
+    <div th:if="${rol == 'TRABAJADOR' and !#lists.isEmpty(misPostulaciones)}" class="mb-4">
+        <h2 class="h5 mb-2">Mis postulaciones enviadas</h2>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Solicitud</th>
+                <th>Tiempo restante del cliente</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="v : ${misPostulaciones}">
+                <td th:text="${v.postulacion.solicitud.descripcion}"></td>
+                <td th:text="${v.tiempoRestanteTexto}"></td>
+                <td>
+                    <form th:if="${v.retirable}" method="post"
+                          th:action="@{/solicitudes/postulaciones/{id}/retirar(id=${v.postulacion.id})}" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Retirar postulacion</button>
+                    </form>
+                    <span th:if="${!v.retirable}" class="text-muted small">Podras retirarla desde los 20 min</span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- TRABAJADOR: invitaciones directas de un cliente -->
+    <div th:if="${rol == 'TRABAJADOR' and !#lists.isEmpty(misInvitaciones)}" class="mb-4">
+        <h2 class="h5 mb-2">Invitaciones recibidas</h2>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Cliente</th>
+                <th>Descripcion</th>
+                <th>Tiempo restante para responder</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="v : ${misInvitaciones}">
+                <td th:text="${v.postulacion.solicitud.cliente.nombre}"></td>
+                <td th:text="${v.postulacion.solicitud.descripcion}"></td>
+                <td th:text="${v.tiempoRestanteTexto}"></td>
+                <td>
+                    <form method="post" th:action="@{/solicitudes/invitaciones/{id}/aceptar(id=${v.postulacion.id})}" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-outline-primary">Aceptar</button>
+                    </form>
+                    <form method="post" th:action="@{/solicitudes/invitaciones/{id}/rechazar(id=${v.postulacion.id})}" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Rechazar</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
     <table class="table">
         <thead>
         <tr>
@@ -19,6 +115,7 @@
             <th>Descripcion</th>
             <th>Estado</th>
             <th>Fecha</th>
+            <th th:if="${rol == 'CLIENTE'}">Postulantes</th>
             <th>Acciones</th>
         </tr>
         </thead>
@@ -28,11 +125,14 @@
             <td th:text="${s.descripcion}"></td>
             <td th:text="${s.estado}"></td>
             <td th:text="${s.fechaCreacion}"></td>
+            <td th:if="${rol == 'CLIENTE'}">
+                <span th:if="${s.estado.name() == 'PENDIENTE'}"
+                      th:text="${postulantesPorSolicitud.get(s.id)} + '/' + ${maxPostulantes}"></span>
+            </td>
             <td>
-                <form th:if="${rol == 'TRABAJADOR' and s.estado.name() == 'PENDIENTE'}" method="post"
-                      th:action="@{/solicitudes/{id}/aceptar(id=${s.id})}" class="d-inline">
-                    <button type="submit" class="btn btn-sm btn-outline-primary">Aceptar</button>
-                </form>
+                <a th:if="${rol == 'CLIENTE' and s.estado.name() == 'PENDIENTE'}"
+                   th:href="@{/solicitudes/{id}/postulantes(id=${s.id})}"
+                   class="btn btn-sm btn-outline-secondary">Ver postulantes</a>
                 <form th:if="${rol == 'TRABAJADOR' and s.estado.name() == 'ACEPTADA'}" method="post"
                       th:action="@{/solicitudes/{id}/finalizar(id=${s.id})}" class="d-inline">
                     <button type="submit" class="btn btn-sm btn-outline-success">Finalizar</button>

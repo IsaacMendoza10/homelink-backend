@@ -24,7 +24,22 @@
             <label class="form-label">Direccion</label>
             <input type="text" name="direccion" class="form-control" required>
         </div>
-        <button type="submit" class="btn btn-primary">Enviar solicitud</button>
+        <div class="mb-3">
+            <label class="form-label d-block">Como quieres publicarla?</label>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="modo" id="modoAbierta" value="ABIERTA" checked>
+                <label class="form-check-label" for="modoAbierta">
+                    Publicar abierta (la ven los trabajadores de la categoria y tu eliges entre los postulados, maximo 7)
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="modo" id="modoDirecta" value="DIRECTA">
+                <label class="form-check-label" for="modoDirecta">
+                    Elegir un trabajador especifico
+                </label>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Continuar</button>
     </form>
 </main>
 </body>

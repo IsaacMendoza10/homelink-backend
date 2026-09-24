@@ -5,5 +5,6 @@ public enum EstadoSolicitud {
     ACEPTADA,
     EN_PROCESO,
     FINALIZADA,
-    CANCELADA
+    CANCELADA,
+    EXPIRADA
 }
