@@ -66,9 +66,14 @@ public class SecurityConfig {
                         .hasRole(RolUsuario.ADMINISTRADOR.name())
                 .requestMatchers("/actuator/**").hasRole(RolUsuario.ADMINISTRADOR.name())
 
-                // Resto de /perfil y /solicitudes: cualquier usuario autenticado
-                // (cliente o trabajador); cada controlador ya distingue el flujo por rol.
-                .requestMatchers("/perfil/**", "/solicitudes/**").authenticated()
+                // /perfil/**: solo tiene sentido para una cuenta TRABAJADOR (es su perfil
+                // profesional). Antes bastaba con estar autenticado con cualquier rol, asi
+                // que un CLIENTE podia entrar aunque no tuviera nada que hacer ahi.
+                .requestMatchers("/perfil/**").hasRole(RolUsuario.TRABAJADOR.name())
+
+                // /solicitudes/**: cualquier usuario autenticado (cliente o trabajador);
+                // cada controlador ya distingue el flujo por rol.
+                .requestMatchers("/solicitudes/**").authenticated()
 
                 .anyRequest().authenticated()
             )

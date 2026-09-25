@@ -16,15 +16,15 @@
         <div class="col-md-6" th:each="p : ${trabajadores}">
             <div class="card h-100">
                 <div class="card-body">
-                    <h2 class="h5" th:text="${p.usuario.nombre}"></h2>
-                    <p class="mb-1" th:text="${p.descripcion}"></p>
-                    <p class="text-muted mb-1" th:text="'Zona: ' + ${p.zonaCobertura}"></p>
-                    <p class="text-muted mb-3" th:text="'Tarifa referencial: ' + ${p.tarifaReferencial}"></p>
+                    <h2 class="h5" th:text="${p.perfilTrabajador.usuario.nombre}"></h2>
+                    <p class="mb-1" th:text="${p.perfilTrabajador.descripcion}"></p>
+                    <p class="text-muted mb-1" th:text="'Zona: ' + ${p.perfilTrabajador.zonaCobertura}"></p>
+                    <p class="text-muted mb-3" th:text="'Tarifa: ' + ${p.tarifa}"></p>
                     <form method="post" th:action="@{/solicitudes/nueva/directa}">
                         <input type="hidden" name="categoriaId" th:value="${categoriaId}">
                         <input type="hidden" name="descripcion" th:value="${descripcion}">
                         <input type="hidden" name="direccion" th:value="${direccion}">
-                        <input type="hidden" name="trabajadorId" th:value="${p.usuario.id}">
+                        <input type="hidden" name="trabajadorId" th:value="${p.perfilTrabajador.usuario.id}">
                         <button type="submit" class="btn btn-primary btn-sm">Elegir a este trabajador</button>
                     </form>
                 </div>

@@ -134,6 +134,10 @@
                    th:href="@{/solicitudes/{id}/postulantes(id=${s.id})}"
                    class="btn btn-sm btn-outline-secondary">Ver postulantes</a>
                 <form th:if="${rol == 'TRABAJADOR' and s.estado.name() == 'ACEPTADA'}" method="post"
+                      th:action="@{/solicitudes/{id}/iniciar(id=${s.id})}" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-outline-primary">Iniciar servicio</button>
+                </form>
+                <form th:if="${rol == 'TRABAJADOR' and s.estado.name() == 'EN_PROCESO'}" method="post"
                       th:action="@{/solicitudes/{id}/finalizar(id=${s.id})}" class="d-inline">
                     <button type="submit" class="btn btn-sm btn-outline-success">Finalizar</button>
                 </form>

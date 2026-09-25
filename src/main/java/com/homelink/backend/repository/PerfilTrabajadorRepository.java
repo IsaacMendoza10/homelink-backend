@@ -12,6 +12,4 @@ public interface PerfilTrabajadorRepository extends JpaRepository<PerfilTrabajad
     Optional<PerfilTrabajador> findByUsuarioId(Long usuarioId);
 
     List<PerfilTrabajador> findByEstadoAprobacion(EstadoAprobacion estado);
-
-    List<PerfilTrabajador> findByCategoriaIdAndEstadoAprobacion(Long categoriaId, EstadoAprobacion estado);
 }

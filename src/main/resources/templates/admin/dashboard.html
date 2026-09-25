@@ -13,7 +13,7 @@
         <thead>
         <tr>
             <th>Nombre</th>
-            <th>Categoria</th>
+            <th>Categorias</th>
             <th>Zona</th>
             <th>Documento</th>
             <th>Acciones</th>
@@ -22,7 +22,13 @@
         <tbody>
         <tr th:each="p : ${pendientes}">
             <td th:text="${p.usuario.nombre}"></td>
-            <td th:text="${p.categoria != null ? p.categoria.nombre : '-'}"></td>
+            <td>
+                <span th:if="${#lists.isEmpty(p.categorias)}">-</span>
+                <span th:unless="${#lists.isEmpty(p.categorias)}"
+                      th:each="tc, iter : ${p.categorias}">
+                    <span th:text="${tc.categoria.nombre}"></span><span th:if="${!iter.last}">, </span>
+                </span>
+            </td>
             <td th:text="${p.zonaCobertura}"></td>
             <td><a th:if="${p.documentoUrl}" th:href="${p.documentoUrl}" target="_blank">Ver</a></td>
             <td>
