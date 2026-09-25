@@ -7,11 +7,12 @@
         <div class="navbar-nav flex-row flex-wrap gap-3">
             <a class="nav-link text-white" href="/categorias">Categorias</a>
             <a class="nav-link text-white" href="/trabajadores">Buscar trabajadores</a>
-            <a class="nav-link text-white" href="/solicitudes">Mis solicitudes</a>
-            <a class="nav-link text-white" href="/perfil">Mi perfil</a>
-            <a class="nav-link text-white" href="/admin/dashboard">Admin</a>
-            <a class="nav-link text-white" href="/login">Ingresar</a>
-            <a class="nav-link text-white" href="/registro">Registrarme</a>
+            <a th:if="${rolActual != null}" class="nav-link text-white" href="/solicitudes">Mis solicitudes</a>
+            <a th:if="${rolActual == 'TRABAJADOR'}" class="nav-link text-white" href="/perfil">Mi perfil</a>
+            <a th:if="${rolActual == 'ADMINISTRADOR'}" class="nav-link text-white" href="/admin/dashboard">Admin</a>
+            <a th:if="${rolActual == null}" class="nav-link text-white" href="/login">Ingresar</a>
+            <a th:if="${rolActual == null}" class="nav-link text-white" href="/registro">Registrarme</a>
+            <a th:if="${rolActual != null}" class="nav-link text-white" href="/logout">Cerrar sesion</a>
         </div>
     </div>
 </nav>

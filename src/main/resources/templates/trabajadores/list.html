@@ -24,10 +24,10 @@
     <div th:if="${trabajadores != null}">
         <div class="card mb-2" th:each="t : ${trabajadores}">
             <div class="card-body">
-                <h5 class="card-title" th:text="${t.usuario.nombre}"></h5>
-                <p class="card-text" th:text="${t.descripcion}"></p>
-                <p class="card-text"><small class="text-muted" th:text="'Zona: ' + ${t.zonaCobertura}"></small></p>
-                <p class="card-text"><small class="text-muted" th:text="'Tarifa referencial: ' + ${t.tarifaReferencial}"></small></p>
+                <h5 class="card-title" th:text="${t.perfilTrabajador.usuario.nombre}"></h5>
+                <p class="card-text" th:text="${t.perfilTrabajador.descripcion}"></p>
+                <p class="card-text"><small class="text-muted" th:text="'Zona: ' + ${t.perfilTrabajador.zonaCobertura}"></small></p>
+                <p class="card-text"><small class="text-muted" th:text="'Tarifa: ' + ${t.tarifa}"></small></p>
             </div>
         </div>
         <p th:if="${#lists.isEmpty(trabajadores)}">No hay trabajadores aprobados en esta categoria todavia.</p>

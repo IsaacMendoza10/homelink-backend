@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -64,21 +65,27 @@ public class SolicitudController {
         return "solicitudes/list";
     }
 
-    // Para un trabajador aprobado: solicitudes abiertas de su categoria (con el
-    // contador X/7 y el tiempo restante ya visibles), sus propias postulaciones
-    // enviadas (con si ya se pueden retirar), y las invitaciones directas que le
-    // llegaron de algun cliente.
+    // Para un trabajador aprobado: solicitudes abiertas de TODAS las categorias
+    // que ofrece (con el contador X/7 y el tiempo restante ya visibles), sus
+    // propias postulaciones enviadas (con si ya se pueden retirar), y las
+    // invitaciones directas que le llegaron de algun cliente.
     private void cargarVistaTrabajador(Long trabajadorId, Model model) {
         List<SolicitudDisponibleView> disponibles = trabajadorService.buscarPorUsuarioId(trabajadorId)
-                .filter(perfil -> perfil.getEstadoAprobacion() == EstadoAprobacion.APROBADO && perfil.getCategoria() != null)
-                .map(perfil -> solicitudService.listarAbiertasPorCategoria(perfil.getCategoria().getId()).stream()
-                        .map(s -> new SolicitudDisponibleView(
-                                s,
-                                postulacionService.contarActivas(s.getId()),
-                                PostulacionService.MAX_POSTULANTES,
-                                TiempoUtil.formatoRestante(s.getFechaCreacion().plusHours(24)),
-                                postulacionService.yaPostulado(s.getId(), trabajadorId)))
-                        .collect(Collectors.toList()))
+                .filter(perfil -> perfil.getEstadoAprobacion() == EstadoAprobacion.APROBADO)
+                .map(perfil -> {
+                    List<SolicitudDisponibleView> vistas = new ArrayList<>();
+                    for (TrabajadorCategoria tc : trabajadorService.listarCategoriasDe(perfil.getId())) {
+                        for (Solicitud s : solicitudService.listarAbiertasPorCategoria(tc.getCategoria().getId())) {
+                            vistas.add(new SolicitudDisponibleView(
+                                    s,
+                                    postulacionService.contarActivas(s.getId()),
+                                    PostulacionService.MAX_POSTULANTES,
+                                    TiempoUtil.formatoRestante(s.getFechaCreacion().plusHours(24)),
+                                    postulacionService.yaPostulado(s.getId(), trabajadorId)));
+                        }
+                    }
+                    return vistas;
+                })
                 .orElse(Collections.emptyList());
         model.addAttribute("solicitudesDisponibles", disponibles);
 
@@ -228,6 +235,15 @@ public class SolicitudController {
         Usuario trabajador = usuarioService.buscarPorId(principal.getUsuario().getId())
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
         postulacionService.rechazarInvitacion(postulacionId, trabajador);
+        return "redirect:/solicitudes";
+    }
+
+    // El trabajador asignado marca que ya empezo el servicio (ACEPTADA -> EN_PROCESO).
+    @PostMapping("/{id}/iniciar")
+    public String iniciar(@AuthenticationPrincipal CustomUserDetails principal, @PathVariable Long id) {
+        Usuario trabajador = usuarioService.buscarPorId(principal.getUsuario().getId())
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+        solicitudService.iniciar(id, trabajador);
         return "redirect:/solicitudes";
     }
 

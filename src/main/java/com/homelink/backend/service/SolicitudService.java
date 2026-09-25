@@ -55,6 +55,21 @@ public class SolicitudService {
         return solicitudRepository.save(solicitud);
     }
 
+    // El trabajador asignado marca que ya empezo el servicio (ACEPTADA -> EN_PROCESO).
+    // Antes de esto no habia forma de distinguir "ya voy a ir" de "ya termine": el
+    // unico paso disponible tras aceptar era Finalizar directamente.
+    public Solicitud iniciar(Long solicitudId, Usuario trabajador) {
+        Solicitud solicitud = obtenerOLanzar(solicitudId);
+        if (solicitud.getTrabajador() == null || !solicitud.getTrabajador().getId().equals(trabajador.getId())) {
+            throw new IllegalArgumentException("Esta solicitud no te fue asignada.");
+        }
+        if (solicitud.getEstado() != EstadoSolicitud.ACEPTADA) {
+            throw new IllegalStateException("Esta solicitud no esta lista para iniciar.");
+        }
+        solicitud.setEstado(EstadoSolicitud.EN_PROCESO);
+        return solicitudRepository.save(solicitud);
+    }
+
     public Solicitud finalizar(Long solicitudId) {
         Solicitud solicitud = obtenerOLanzar(solicitudId);
         solicitud.setEstado(EstadoSolicitud.FINALIZADA);
